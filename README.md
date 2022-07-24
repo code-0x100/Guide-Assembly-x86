@@ -9,6 +9,7 @@
   <a href="#Endianness">Endianness</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
   <a href="#Instruções">Instruções</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
   <a href="#Modo de processamento">Modo de processamento</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+    <a href="#Sintaxe">Sintaxe</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
 </p>
 
 <a id="Introdução"></a>
@@ -145,5 +146,120 @@ O modo de compatibilidade serve para obter compatibilidade com a arquitetura IA-
 ## Virtual-8086
 
 Lembra que o antigo Windows XP de 32 bit era capaz de rodar programas de 16 bit do MS-DOS?
-Isto era possível devido ao modo Virtual-8086 que, de maneira parecida com o compatibility mode, permite executar código de 16 bit enquanto o processador está em protected mode. Nos processadores atuais o Virtual-8086 não é um submodo de processamento do protected mode mas sim um atributo que pode ser setado enquanto o processador está executando nesse modo.
+Isto era possível devido ao modo Virtual-8086 que, de maneira parecida com o compatibility mode, permite executar código de 16 bit enquanto o processador está em protected mode. Nos processadores atuais o Virtual-8086 não é um submodo de processamento do protected mode mas sim um atributo que pode ser setado
+enquanto o processador está executando nesse modo.
+
+<a id="Sintaxe"></a>
+
+# Sintaxe 🤖
+
+O Assembly da arquitetura x86 tem duas versões diferentes de sintaxe: A sintaxe Intel e a sintaxe AT&T.
+A sintaxe Intel é a que iremos usar neste livro já que, ao meu ver, ela é mais intuitiva e legível. Também é a sintaxe que o nasm usa, já o GAS suporta as duas porém usando sintaxe AT&T por padrão. É importante saber ler código das duas sintaxes, mas por enquanto vamos aprender apenas a sintaxe do nasm.
+
+## Case Insensitive
+
+As instruções da linguagem Assembly, bem como também as instruções particulares do nasm, são case-insensitive. O que significa que não faz diferença se eu escrevo em caixa-alta, baixa ou mesclando os dois. Veja que cada linha abaixo o nasm irá compilar como a mesma instrução:
+
+```assembly
+  mov eax, 777
+  Mov Eax, 777
+  MOV EAX, 777
+  mov EAX, 777
+  MoV EaX, 777
+```
+
+## Comentários
+
+No nasm se pode usar o ponto-vírgula `;` para comentários que única linha, equivalente ao `//` em C.
+Comentários de múltiplas linhas podem ser feitos usando a diretiva pré-processada ``%comment`` para iniciar o comentário e ``%endcomment`` para finalizá-lo. Exemplo:
+
+```assembly
+; Um exemplo
+mov eax, 777 ; Outro exemplo
+
+%comment
+  Mais
+  um
+  exemplo
+%endcomment
+```
+
+## Números
+
+Números literais podem ser escritos em base decimal, hexadecimal, octal e binário. Também é possível escrever constantes numéricas de ponto flutuante no nasm, conforme exemplos:
+
+<p align="center">
+  <img src="./.github/numeros.jpeg">
+</p>
+
+## Strings
+
+Strings podem ser escritas no nasm de três formas diferentes:
+
+<p align="center">
+  <img src="./.github/string.jpeg">
+</p>
+
+Os dois primeiros são equivalentes e não tem nenhuma diferença para o nasm. O último aceita caracteres de escape no mesmo estilo da linguagem C.
+
+## Formato das instruções
+
+As instruções em Assembly seguem a premissa de especificar uma operação e seus operandos. Na arquitetura x86 uma instrução pode não ter operando algum e chegar até três operandos.
+
+```asm
+  operação operando1, operando2, operando3
+```
+
+Algumas instruções alteram o valor de um ou mais operandos, que pode ser um endereçamento na memória ou um registrador. Nas instruções que alteram o valor de apenas um operando ele sempre será o operando mais à esquerda. Um exemplo prático é a instrução mov:
+
+```assembly
+mov eax, 777
+```
+
+O mov especifica a operação enquanto o eax e o 777 são os operandos. Essa instrução altera o valor do operando destino eax para 777. Exemplo de pseudo-código:
+
+```
+  eax = 777;
+```
+
+ou em C
+
+```C
+int eax = 777;
+```
+
+    Da mesma forma que não é possível fazer 777 = eaxem linguagens de alto nível,
+    também não dá para passar um valor numérico como operando destino para mov. Ou seja, isto está errado:
+```
+    mov 777, eax ; Erro
+```
+
+## Endereçamento
+
+O endereçamento em Assembly x86 é basicamente um cálculo para acessar determinado valor na memória. O resultado deste cálculo é o endereço na memória que o processador irá acessar, seja para ler ou escrever dados no mesmo. Usá-se os colchetes ``[]`` para denotar um endereçamento. Ao usar colchetes como operando você está basicamente acessando um valor na memória. Por exemplo poderíamos alterar o valor no endereço 0x100 usando a instrução mov para o valor contido no registrador eax.
+
+```asm
+mov [0x100], eax
+```
+    Emdereçamentos se compara com ponteiros em C
+
+    Você só pode usar um operando na memória por instrução. Então não é possível fazer algo como:
+    mov [0x100], [0x200]
+
+
+## Tamanho do operando
+
+Quando um dos operandos é um endereçamento na memória você precisa especificar o seu tamanho.
+Ao fazer isso você define o número de bytes que serão lidos ou escritos na memória. A maioria das instruções exigem que o operando destino tenha o mesmo tamanho do operando que irá definir o seu valor, salvo algumas exceções. No nasm existem palavra-chaves (keywords) que você pode posicionar logo antes do operando para determinar o seu tamanho.
+
+<p align="center">
+  <img src="./.github/keywords.jpeg">
+</p>
+
+Exemplo:
+
+```asm
+mov dword [x0x100], 777
+```
+Se você usar um dos operandos como um registrador o nasm irá automaticamente assumir o tamanho do operando como o mesmo tamanho do registrador. Esse é o único caso onde você não é obrigado a especificar o tamanho porém em algumas instruções o nasm não consegue inferir o tamanho do operando.
 
