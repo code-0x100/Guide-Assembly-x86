@@ -263,3 +263,17 @@ mov dword [x0x100], 777
 ```
 Se você usar um dos operandos como um registrador o nasm irá automaticamente assumir o tamanho do operando como o mesmo tamanho do registrador. Esse é o único caso onde você não é obrigado a especificar o tamanho porém em algumas instruções o nasm não consegue inferir o tamanho do operando.
 
+## Pseudo-instruções
+
+No nasm existem o que são chamadas de "pseudo-instruções", são instruções que não são de fato instruções da arquitetura x86 mas sim instruções que serão interpretadas pelo nasm. Elas são úteis para deixar o código em Assembly mais versátil mas deixando claro que elas não são instruções que serão executadas pelo processador. Exemplo básico é a pseudo-instrução db que serve para despejar bytes no correspondente local do arquivo binário de saída. Observe:
+
+```asm
+db 0x41, 0x42, 0x43, 0x44, "String", 0
+```
+
+Dá para especificar o byte como um número ou então uma sequência de bytes em formato de string. Essa pseudo-instrução não tem limite de valores separados por vírgula. Veja a saída do exemplo acima no hexdump, um visualizador hexadecimal:
+
+
+<p align="center">
+  <img src="./.github/hd.jpeg">
+</p>
