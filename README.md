@@ -300,3 +300,29 @@ assembly:
 
 Repare o rótulo assembly na linha 4. Nesse caso o rótulo está sendo usado para denotar o símbolo que aponta para a primeira instrução da nossa função homônima.
 
+## Rótulos locais
+
+Um rótulo local, em inglês local label, é basicamente um rótulo que hierarquicamente está abaixo de outro rótulo. Para definir um rótulo local podemos simplesmente adicionar um ponto . como primeiro caractere do nosso rótulo. Veja o exemplo:
+
+```asm
+meu_rotulo:
+  mov eax, 777
+.subrotulo:
+  mov ebx, 555
+```
+
+Dessa forma o nome completo de .subrotulo é na verdade meu_rotulo.subrotulo. As instruções que estejam hierarquicamente dentro do rótulo "pai" podem acessar o rótulo local usando de sua nomenclatura com . no início do nome ao invés de citar o nome completo. Como no exemplo:
+
+```asm
+meu_rotulo:
+  jmp .subrotulo
+  mov eax, 777
+
+.subrotulo:
+  ret
+```
+
+## Diretivas
+
+Parecido com as pseudo-instruções, o nasm também oferece as chamadas diretivas. A diferença é que as pseudo-instruções apresentam uma saída em bytes exatamente onde elas são utilizadas, já as diretivas são como comandos para modificar o comportamento do assembler.
+Por exemplo a diretiva ``bits`` que serve para especificar se as instruções seguintes são de 64, 32 ou 16 bits. Podemos observar o uso desta diretiva na nossa PoC. Por padrão o nasm monta as instruções como se fossem de 16 bits.
