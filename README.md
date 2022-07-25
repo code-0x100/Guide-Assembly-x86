@@ -259,7 +259,7 @@ Ao fazer isso você define o número de bytes que serão lidos ou escritos na me
 Exemplo:
 
 ```asm
-mov dword [x0x100], 777
+mov dword [0x100], 777
 ```
 Se você usar um dos operandos como um registrador o nasm irá automaticamente assumir o tamanho do operando como o mesmo tamanho do registrador. Esse é o único caso onde você não é obrigado a especificar o tamanho porém em algumas instruções o nasm não consegue inferir o tamanho do operando.
 
@@ -277,3 +277,26 @@ Dá para especificar o byte como um número ou então uma sequência de bytes em
 <p align="center">
   <img src="./.github/hd.jpeg">
 </p>
+
+## Rótulos
+
+Os rótulos, ou em inglês labels, são definições de símbolos usados para identificar determinados endereços da memória no código fonte em Assembly. Podem ser usados de maneira bastante parecida com os rótulos em C. O nome do rótulo serve para pegar o endereço da memória do byte seguinte a posição do rótulo, que pode ser uma instrução ou um byte qualquer produzido por uma pseudo-instrução.
+Para escrever um rótulo basta digitar seu nome seguido de dois-pontos ``:``
+
+    meu_rotulo: instrução/pseudo-instrução
+
+Você pode inserir instruções/pseudo-instruções imediatamente após o rótulo ou então em qualquer linha seguinte, não faz diferença no resultado final. Também é possível adicionar um rótulo no final do arquivo, o fazendo apontar para o byte seguinte ao conteúdo do arquivo na memória.
+
+Já vimos um exemplo prático de uso de rótulo na nossa PoC:
+
+```asm
+bits 64
+
+global assembly
+assembly:
+  mov eax, 777
+  ret
+```
+
+Repare o rótulo assembly na linha 4. Nesse caso o rótulo está sendo usado para denotar o símbolo que aponta para a primeira instrução da nossa função homônima.
+
