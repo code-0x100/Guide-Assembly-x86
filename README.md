@@ -10,6 +10,8 @@
   <a href="#Instruções">Instruções</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
   <a href="#Modo de processamento">Modo de processamento</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
     <a href="#Sintaxe">Sintaxe</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+    <a href="#Registradores gerais">Registradores gerais</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+    
 </p>
 
 <a id="Introdução"></a>
@@ -326,3 +328,165 @@ meu_rotulo:
 
 Parecido com as pseudo-instruções, o nasm também oferece as chamadas diretivas. A diferença é que as pseudo-instruções apresentam uma saída em bytes exatamente onde elas são utilizadas, já as diretivas são como comandos para modificar o comportamento do assembler.
 Por exemplo a diretiva ``bits`` que serve para especificar se as instruções seguintes são de 64, 32 ou 16 bits. Podemos observar o uso desta diretiva na nossa PoC. Por padrão o nasm monta as instruções como se fossem de 16 bits.
+
+
+<a id="Registradores gerais"></a>
+
+# Registradores gerais 🤖
+
+Seguindo o modelo da arquitetura de Von Neumann, interno a CPU existem pequenos espaços de memória chamados de registers, ou em português, registradores.
+Esses espaços de memória são pequenos, apenas o suficiente para armazenar um valor numérico de N bits de tamanho. Ler e escrever dados em um registrador é muito mais rápido do que a tarefa equivalente na memória principal. Do ponto de vista do programador é interessante usar registradores para manipular valores enquanto está trabalhando com eles, e depois armazená-lo de volta na memória se for o caso. Seguindo um fluxo como:
+
+      Registradores = pequenos espaços de memória do CPU
+
+      Registrador = Memória
+      Operações com o valor no registrador
+      Memória = Registrador
+
+## Mapeamento dos registradores gerais
+
+Afim de aumentar a versatilidade no uso de registradores, para poder manipular dados de tamanhos variados no mesmo espaço de memória do registrador, alguns registradores são subdivido em registradores menores. Isso seria o "mapeamento" dos registradores que faz com que vários registradores de tamanhos diferentes compartilhem o mesmo espaço. Se você entende como funciona uma union em C já deve ter entendido a lógica aqui.
+
+Lá nos primórdios da arquitetura x86 os registradores tinham o tamanho de 16 bits (2 bytes). Os processadores IA-32 aumentaram o tamanho desses registradores para acompanhar a largura do barramento interno de 32 bits (4 bytes). A referência para o registrador completo ganhou um prefixo 'E' que seria a primeira letra de "Extended" (estendido). Processadores x86-64 aumentaram mais uma vez o tamanho desses registradores para 64 bits (8 bytes), dessa vez dando um prefixo 'R' que seria de "Re-extended" (re-estendido). Só que também trazendo alguns novos registradores gerais.
+
+    AX = 16 bits (2 bytes)
+    EAX = 32 bits (4 bytes) E = estendido
+    RAX = 64 bits (8 bytes) R = re-estendido
+
+## Registradores gerais (IA-16)
+
+Os registradores de propósito geral (GPR na sigla em inglês) são registradores que são, como o nome sugere, de uso geral pelas instruções. Na arquitetura IA-16 nós temos os registradores de 16 bits que são mapeados em subdivisões como explicado acima.
+
+Determinadas instruções da arquitetura usam alguns desses registradores para tarefas específicas mas eles não são limitados somente para esse uso. Você pode usá-los da maneira que quiser porém recomendo seguir o padrão para melhorar a legibilidade do código. O "apelido" na tabela abaixo é o nome dado aos registradores em inglês, serve para fins de memorização.
+
+<p align="center">
+  <img src="./.github/IA-16.jpeg">
+</p>
+
+Os registradores AX, BX, CX e DX são subdivididos em 2 registradores cada um. Um dos registradores é mapeado no seu byte mais significativo (Higher byte) e o outro no byte menos significativo (Lower byte).
+Reparou que os registradores são uma de letra seguido do X? Para simplificar podemos dizer que os registradores são A, B, C e D e o sufixo X serve para mapear todo o registrador, enquanto o sufixo H mapeia o Higher byte e o sufixo L mapeia o Lower byte.
+
+Ou seja se alteramos o valor de AL na verdade estamos alterando o byte menos significativo de AX. E se alteramos AH então é o byte mais significativo de AX. Como no exemplo abaixo:
+
+```asm
+mov ah, 0xaa
+mov al, 0xbb
+; Aqui o valor de AX é 0xaabb
+```
+
+Esse mesmo mapeamento ocorre também nos registradores BX, CX e DX. Como podemos ver na tabela abaixo:
+
+<p align="center">
+  <img src="./.github/tabela-ax.png">
+</p>
+
+    Obs: Do processador 80386 em diante, em real mode, é possível usar as versões estendidas dos registradores existentes em IA-32. Porém os registradores estendidos de x86-64 só podem ser acessados em submodo de 64-bit.
+
+## Registradores gerais (IA-32)
+
+Já vimos o registrador "EAX" sendo manipulado na nossa PoC. Como o prefixo 'E' indica ele é de 32 bits (4 bytes) de tamanho. Poderíamos simular esse registrador com uma union em C da seguinte forma:
+
+    Para testar o exemplo você pode abrir a pasta src e procurar o nome do teste.
+
+### Teste 1
+```c
+#include <stdio.h>
+#include <stdint.h>
+
+union reg
+{
+  uint32_t eax;
+  uint16_t ax;
+
+  struct
+  {
+    uint8_t al;
+    uint8_t ah;
+  };
+};
+
+int main(void)
+{
+  union reg x = {.eax = 0x11223344};
+
+  printf("AH:  %02x\n"
+         "AL:  %02x\n"
+         "AX:  %04x\n"
+         "EAX: %08x\n",
+         x.ah,
+         x.al,
+         x.ax,
+         x.eax);
+
+  return 0;
+}
+
+```
+
+O que deveria gerar a seguinte saída:
+
+<p align="center">
+  <img src="./.github/resultado-do-test-1.jpeg">
+</p>
+
+Podemos testar o mapeamento de EAX com nossa PoC:
+
+
+### Teste 2
+```asm
+;Use o arquivo main.c a baixo
+
+bits 64
+
+global assembly
+assembly:
+  mov eax, 0x11223344
+  mov ax,  0xaabb
+  ret
+```
+
+```c
+#include <stdio.h>
+
+int assembly(void);
+
+int main(void)
+{
+  printf("Resultado: %08x\n", assembly());
+  return 0;
+}
+```
+
+Na linha 8 alteramos o valor de EAX para ``0x11223344`` e logo em seguida, na linha 9, alteramos AX para ``0xaabb``. Isso deveria resultar em EAX = ``0x1122aabb``.
+
+
+    Caso ainda não tenha reparado o retorno da nossa função assembly() é guardado no registrador EAX. Isso será explicado mais para frente nos tópicos sobre convenção de chamada.
+
+## Registradores gerais (x86-64)
+
+Os registradores de propósito geral em x86-64 são estendidos para 64 bits e ganham o prefixo 'R', ficando a lista: RAX, RBX, RCX, RDX, RSP, RBP, RSI, RDI
+
+Todos os registradores gerais em IA-32 são mapeados nos 4 bytes menos significativos dos registradores re-estendidos seguindo o mesmo padrão de mapeamento anterior.
+
+E há também um novo padrão de mapeamento do x86-64 com novos registradores gerais. Os novos nomes dos registradores são uma letra 'R' seguido de um número de 8 a 15.
+
+O mapeamento dos novos registradores são um pouco diferentes. Podemos usar o sufixo 'B' para acessar o byte menos significativo, o sufixo 'W' para acessar a word (2 bytes) menos significativa e 'D' para acessar a doubleword (4 bytes) menos significativa. Usando R8 como exemplo podemos montar a tabela abaixo:
+
+<p align="center">
+  <img src="./.github/registradores-x86-64.jpeg">
+</p>
+
+Em x86-64 também é possível acessar o byte menos significativo dos registradores RSP, RBP, RSI e RDI. O que não é possível em IA-32 ou IA-16. Eles são mapeados em SPL, BPL, SIL e DIL.
+
+## Escrita nos registradores gerais em x86-64
+
+A escrita de dados nos 4 bytes menos significativos de um registrador em x86-64 funciona de maneira um pouco diferente do que nós estamos acostumados. Observe o exemplo:
+
+```asm
+mov rax, 0x11223344aabbccdd
+mov eax, 0x1234
+```
+
+A instrução na linha 2 mudaria o valor de RAX para 0x0000000000001234. Isso acontece porque o valor é zero-extended, ou seja, ele é estendido de forma que os 4 bytes mais significativos de RAX são zerados.
+
+O mesmo vale para todos os registradores gerais, incluindo os registradores R8..R15 caso você escreva algum valor em R8D..R15D.
