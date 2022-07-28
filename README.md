@@ -13,6 +13,7 @@
     <a href="#Registradores gerais">Registradores gerais</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
     <a href="#Endereçamento">Endereçamento</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
     <a href="#Pilha">Pilha</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+    <a href="#Saltos">Saltos</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; 
  
 </p>
 
@@ -134,12 +135,12 @@ Pelo que nós vimos acima então na verdade um "sistema operacional de 64 bit" n
 
 Isso é possível porque existem mais modos de processamento do que os que eu já mencionei. Reparou que eu disse "submodo" de 64-bit? É porque na verdade o 64-bit não é um modo principal mas sim um submodo. A hierarquia de modos de processamento de um processador Intel64 ficaria da seguinte forma:
 
-  - Real mode (16 bit)
-  - Protected mode (32 bit)
-  - SMM (não vamos falar desse modo, mais ele existe)
-  - IA-32e
-    - 64-bit (64 bit)
-    - Compatibility mode (32 bit)
+- Real mode (16 bit)
+- Protected mode (32 bit)
+- SMM (não vamos falar desse modo, mais ele existe)
+- IA-32e
+  - 64-bit (64 bit)
+  - Compatibility mode (32 bit)
 
 O modo IA-32e é uma adição dos processadores x86-64. Repare que ele tem outro submodo chamado "compatibility mode", ou em português, "modo de compatibilidade".
 
@@ -175,7 +176,7 @@ As instruções da linguagem Assembly, bem como também as instruções particul
 ## Comentários
 
 No nasm se pode usar o ponto-vírgula `;` para comentários que única linha, equivalente ao `//` em C.
-Comentários de múltiplas linhas podem ser feitos usando a diretiva pré-processada ``%comment`` para iniciar o comentário e ``%endcomment`` para finalizá-lo. Exemplo:
+Comentários de múltiplas linhas podem ser feitos usando a diretiva pré-processada `%comment` para iniciar o comentário e `%endcomment` para finalizá-lo. Exemplo:
 
 ```assembly
 ; Um exemplo
@@ -234,22 +235,23 @@ int eax = 777;
 
     Da mesma forma que não é possível fazer 777 = eaxem linguagens de alto nível,
     também não dá para passar um valor numérico como operando destino para mov. Ou seja, isto está errado:
+
 ```
     mov 777, eax ; Erro
 ```
 
 ## Endereçamento
 
-O endereçamento em Assembly x86 é basicamente um cálculo para acessar determinado valor na memória. O resultado deste cálculo é o endereço na memória que o processador irá acessar, seja para ler ou escrever dados no mesmo. Usá-se os colchetes ``[]`` para denotar um endereçamento. Ao usar colchetes como operando você está basicamente acessando um valor na memória. Por exemplo poderíamos alterar o valor no endereço 0x100 usando a instrução mov para o valor contido no registrador eax.
+O endereçamento em Assembly x86 é basicamente um cálculo para acessar determinado valor na memória. O resultado deste cálculo é o endereço na memória que o processador irá acessar, seja para ler ou escrever dados no mesmo. Usá-se os colchetes `[]` para denotar um endereçamento. Ao usar colchetes como operando você está basicamente acessando um valor na memória. Por exemplo poderíamos alterar o valor no endereço 0x100 usando a instrução mov para o valor contido no registrador eax.
 
 ```asm
 mov [0x100], eax
 ```
+
     Emdereçamentos se compara com ponteiros em C
 
     Você só pode usar um operando na memória por instrução. Então não é possível fazer algo como:
     mov [0x100], [0x200]
-
 
 ## Tamanho do operando
 
@@ -265,6 +267,7 @@ Exemplo:
 ```asm
 mov dword [0x100], 777
 ```
+
 Se você usar um dos operandos como um registrador o nasm irá automaticamente assumir o tamanho do operando como o mesmo tamanho do registrador. Esse é o único caso onde você não é obrigado a especificar o tamanho porém em algumas instruções o nasm não consegue inferir o tamanho do operando.
 
 ## Pseudo-instruções
@@ -277,7 +280,6 @@ db 0x41, 0x42, 0x43, 0x44, "String", 0
 
 Dá para especificar o byte como um número ou então uma sequência de bytes em formato de string. Essa pseudo-instrução não tem limite de valores separados por vírgula. Veja a saída do exemplo acima no hexdump, um visualizador hexadecimal:
 
-
 <p align="center">
   <img src="./.github/hd.jpeg">
 </p>
@@ -285,7 +287,7 @@ Dá para especificar o byte como um número ou então uma sequência de bytes em
 ## Rótulos
 
 Os rótulos, ou em inglês labels, são definições de símbolos usados para identificar determinados endereços da memória no código fonte em Assembly. Podem ser usados de maneira bastante parecida com os rótulos em C. O nome do rótulo serve para pegar o endereço da memória do byte seguinte a posição do rótulo, que pode ser uma instrução ou um byte qualquer produzido por uma pseudo-instrução.
-Para escrever um rótulo basta digitar seu nome seguido de dois-pontos ``:``
+Para escrever um rótulo basta digitar seu nome seguido de dois-pontos `:`
 
     meu_rotulo: instrução/pseudo-instrução
 
@@ -329,8 +331,7 @@ meu_rotulo:
 ## Diretivas
 
 Parecido com as pseudo-instruções, o nasm também oferece as chamadas diretivas. A diferença é que as pseudo-instruções apresentam uma saída em bytes exatamente onde elas são utilizadas, já as diretivas são como comandos para modificar o comportamento do assembler.
-Por exemplo a diretiva ``bits`` que serve para especificar se as instruções seguintes são de 64, 32 ou 16 bits. Podemos observar o uso desta diretiva na nossa PoC. Por padrão o nasm monta as instruções como se fossem de 16 bits.
-
+Por exemplo a diretiva `bits` que serve para especificar se as instruções seguintes são de 64, 32 ou 16 bits. Podemos observar o uso desta diretiva na nossa PoC. Por padrão o nasm monta as instruções como se fossem de 16 bits.
 
 <a id="Registradores gerais"></a>
 
@@ -391,6 +392,7 @@ Já vimos o registrador "EAX" sendo manipulado na nossa PoC. Como o prefixo 'E' 
     Para testar o exemplo você pode abrir a pasta src e procurar o nome do teste.
 
 ### Teste 1
+
 ```c
 #include <stdio.h>
 #include <stdint.h>
@@ -433,8 +435,8 @@ O que deveria gerar a seguinte saída:
 
 Podemos testar o mapeamento de EAX com nossa PoC:
 
-
 ### Teste 2
+
 ```asm
 ;Use o arquivo main.c a baixo
 
@@ -459,8 +461,7 @@ int main(void)
 }
 ```
 
-Na linha 8 alteramos o valor de EAX para ``0x11223344`` e logo em seguida, na linha 9, alteramos AX para ``0xaabb``. Isso deveria resultar em EAX = ``0x1122aabb``.
-
+Na linha 8 alteramos o valor de EAX para `0x11223344` e logo em seguida, na linha 9, alteramos AX para `0xaabb`. Isso deveria resultar em EAX = `0x1122aabb`.
 
     Caso ainda não tenha reparado o retorno da nossa função assembly() é guardado no registrador EAX. Isso será explicado mais para frente nos tópicos sobre convenção de chamada.
 
@@ -508,7 +509,8 @@ Porém o acesso a operandos na memória principal é feito definindo alguns fato
 No código de máquina da arquitetura IA-16 existe um byte chamado ModR/M que serve para especificar algumas informações relacionadas ao acesso de (R)egistradores e/ou (M)emória. O endereçamento em IA-16 é totalmente especificado nesse byte e ele nos permite fazer um cálculo no seguinte formato:
 
     REG + REG + DESLOCAMENTO
-Onde ``REG`` seria o nome de um registrador e ``DESLOCAMENTO`` um valor numérico também somado ao endereço. Os registradores ``BX``, ``BP``, ``SI`` e ``DI`` podem ser utilizados. Enquanto o deslocamento é um valor de 8 ou 16 bits.
+
+Onde `REG` seria o nome de um registrador e `DESLOCAMENTO` um valor numérico também somado ao endereço. Os registradores `BX`, `BP`, `SI` e `DI` podem ser utilizados. Enquanto o deslocamento é um valor de 8 ou 16 bits.
 
 Alguns exemplos para facilitar o entendimento:
 
@@ -530,10 +532,10 @@ mov [si+di], ax ; ERRADO!
 
 Em IA-32 o código de máquina tem também o byte SIB que é um novo modo de endereçamento. Enquanto em IA-16 nós temos apenas uma base e um índice, em IA-32 nós ganhamos também um fator de escala. O fator de escala é basicamente um número que irá multiplicar o valor de índice.
 
-  - O valor do fator de escala pode ser 1, 2, 4 ou 8.
-  - O registrador de índice pode ser qualquer um dos registradores gerais exceto ESP.
-  - O registrador de base pode ser qualquer registrador geral.
-  - O deslocamento pode ser de 8 ou 32 bits.
+- O valor do fator de escala pode ser 1, 2, 4 ou 8.
+- O registrador de índice pode ser qualquer um dos registradores gerais exceto ESP.
+- O registrador de base pode ser qualquer registrador geral.
+- O deslocamento pode ser de 8 ou 32 bits.
 
 Exemplos:
 
@@ -556,10 +558,10 @@ mov [esp*2], eax   ; ERRADO!
 
 Em x86-64 segue a mesma premissa de IA-32 com alguns adendos:
 
-  - É possível usar registradores de 32 ou 64 bit.
-  - Os registradores de R8 a R15 ou R8D a R15D podem ser usados como base ou índice.
-  - Não é possível mesclar registradores de 32 e 64 bits em um mesmo endereçamento.
-- O byte ModR/M tem um novo endereçamento ``RIP + deslocamento``. Onde o deslocamento é  necessariamente de 32 bits.
+- É possível usar registradores de 32 ou 64 bit.
+- Os registradores de R8 a R15 ou R8D a R15D podem ser usados como base ou índice.
+- Não é possível mesclar registradores de 32 e 64 bits em um mesmo endereçamento.
+- O byte ModR/M tem um novo endereçamento `RIP + deslocamento`. Onde o deslocamento é necessariamente de 32 bits.
 
 ```asm
 mov [rbx], rax           ; Correto!
@@ -612,8 +614,8 @@ Dessa vez acusaria erro já que a base foi explicitada. Lembre-se que os fatores
 
 A instrução LEA, sigla para Load Effective Address, calcula o endereço efetivo do segundo operando e armazena o resultado do cálculo em um registrador. Essa instrução pode ser útil para testar o cálculo do effective address e ver os resultados usando nossa PoC, conforme exemplo abaixo:
 
-
 ### Teste 3
+
 ```asm
 bits 64
 
@@ -668,7 +670,7 @@ assembly:
   push rax
 
   mov rax, 112233
-  pop rax 
+  pop rax
   ret
 ```
 
@@ -684,11 +686,11 @@ int main(void)
 }
 ```
 
-Na linha ``6`` empilhamos o valor de RAX na pilha, alteramos o valor na linha ``8`` mas logo em seguida desempilhamos o valor e jogamos de volta em RAX. O resultado disso é o valor 12345 sendo retornado pela função.
+Na linha `6` empilhamos o valor de RAX na pilha, alteramos o valor na linha `8` mas logo em seguida desempilhamos o valor e jogamos de volta em RAX. O resultado disso é o valor 12345 sendo retornado pela função.
 
-A instrução ``pop`` recebe como operando um registrador ou endereçamento de memória onde ele deve armazenar o valor desempilhado.
+A instrução `pop` recebe como operando um registrador ou endereçamento de memória onde ele deve armazenar o valor desempilhado.
 
-A instrução ``push`` recebe como operando o valor a ser empilhado. O tamanho de cada valor na pilha também acompanha o barramento interno (64 bits em 64-bit, 32 bits em protected mode e 16 bits em real mode). Pode-se passar como operando um valor na memória, registrador ou valor imediato.
+A instrução `push` recebe como operando o valor a ser empilhado. O tamanho de cada valor na pilha também acompanha o barramento interno (64 bits em 64-bit, 32 bits em protected mode e 16 bits em real mode). Pode-se passar como operando um valor na memória, registrador ou valor imediato.
 
 A pilha "cresce" para baixo. O que significa que toda vez que um valor é inserido nela o valor de ESP é subtraído pelo tamanho em bytes do valor. E na mesma lógica um pop incrementa o valor de ESP. Logo as instruções seriam equivalentes aos dois pseudocódigos abaixo (considerando um código de 32-bit):
 
@@ -699,3 +701,142 @@ A pilha "cresce" para baixo. O que significa que toda vez que um valor é inseri
     POP
     operando = [ESP]
     ESP = ESP + 4
+
+<a id="Saltos"></a>
+
+# Saltos 🤖
+
+Provavelmente você já sabe o que é um desvio de fluxo de código em uma linguagem de alto nível. Algo como uma instrução `if` que condicionalmente executa um determinado bloco de código, ou um `for` que executa várias vezes o mesmo bloco de código. Tudo isso é possível devido ao desvio do fluxo de código. Vamos a um pseudo-exemplo de um `if`:
+
+    1. Compare o valor de X com Y
+    2. Se o valor de X for maior, pule para 4.
+    3. Adicione 2 ao valor de X
+    4.
+
+Repare que se a comparação no passo 1 der que o valor de X é maior, a instrução no passo 2 faz um desvio para o passo 4. Desse jeito o passo 3 nunca será executado. Porém caso a condição no passo 2 for falsa, isto é, o valor de X não é maior do que o valor de Y então o desvio não irá acontecer e o passo 3 será executado.
+
+Ou seja o passo 3 só será executado sob uma determinada condição. Isso é um código condicional, isso é um `if`. Repare que o resultado da comparação no passo 1 precisa ficar armazenado em algum lugar, e este "lugar" é o registrador FLAGS.
+
+## Salto não condicional
+
+Antes de vermos um desvio de fluxo condicional vamos entender como é o próprio desvio de fluxo em si.
+
+Na verdade existem muito mais registradores do que os que eu já citei. E um deles é o registrador `IP`, sigla para Instruction Pointer (ponteiro de instrução). Esse registrador também acompanha o tamanho do barramento interno, assim como os registradores gerais:
+
+<p align="center">
+  <img src="./.github/salto.jpeg">
+</p>
+
+Assim como o nome sugere o Instruction Pointer serve como um ponteiro para a próxima instrução a ser executada pelo processador. Desse jeito é possível mudar o fluxo do código simplesmente alterando o valor de IP, porém não é possível fazer isso diretamente com uma instrução como a mov.
+
+Na arquitetura x86 existem as instruções de jump, salto em inglês, que alteram o valor de IP permitindo assim que o fluxo seja alterado. A instrução de jump não condicional, intuitivamente, se chama JMP. Esse desvio de fluxo é algo muito semelhante com a instrução `goto` da linguagem C, inclusive em boa parte das vezes o compilador converte o `goto` para meramente um JMP.
+
+O uso da instrução JMP é feito da seguinte forma:
+
+    jmp endereço
+
+Onde o operando você pode passar um rótulo que o assembler irá converter para o endereço corretamente. Veja o exemplo na nossa PoC:
+
+# Teste 5
+
+```asm
+bits 64
+
+global assembly
+assembly:
+  mov eax, 555
+  jmp .end
+
+  mov eax, 333
+
+.end:
+  ret
+```
+
+```c
+#include <stdio.h>
+
+int assembly(void);
+
+int main(void)
+{
+  printf("Resultado: %d\n", assembly());
+  return 0;
+}
+```
+
+A instrução na linha 8 nunca será executada devido ao JMP na linha 6.
+
+## Registrador FLAGS
+
+O registrador FLAGS também é estendido junto ao tamanho do barramento interno. Então temos:
+
+<p align="center">
+  <img src="./.github/flags.jpeg">
+</p>
+
+Esse registrador, diferente dos registradores gerais, não pode ser acessado diretamente por uma instrução. O valor de cada bit do registrador é testado por determinadas instruções e são ligados e desligados por outras instruções. É testando o valor dos bits do registrador FLAGS que as instruções condicionais funcionam.
+
+## Salto condicional
+
+Os jumps condicionais, normalmente referidos como Jcc, são instruções que condicionalmente fazem o desvio de fluxo do código. Elas verificam os valores dos bits do registrador FLAGS e, com base nos valores, será decidido se o salto será tomado ou não. Assim como no caso do JMP as instruções Jcc também recebem como operando o endereço para onde devem tomar o salto caso a condição seja atendida. Se ela não for atendida então o fluxo de código continuará normalmente.
+
+Eis a lista dos saltos condicionais mais comuns:
+
+<p align="center">
+  <img src="./.github/jumpif.jpeg">
+</p>
+
+    O nome Jcc para se referir aos saltos condicionais vem do prefixo 'J' seguido de 'cc' para indicar uma condição, que é o formato da nomenclatura das instruções.
+    Exemplo: JLE -- 'J' prefixo, 'LE' condição (Less or Equal)
+    Essa mesma nomenclatura também é usada para as outras instruções condicionais, como por exemplo CMOVcc.
+
+A maneira mais comum usada para setar as flags para um salto condicional é a instrução CMP. Ela recebe dois operandos e compara o valor dos dois, com base no resultado da comparação ela seta as flags corretamente. Agora um exemplo na nossa PoC:
+
+# Teste 6
+
+```asm
+bits 64
+
+global assembly
+assembly:
+  mov eax, 0
+
+  mov rbx, 7
+  mov rcx, 5
+  cmp rbx, rcx
+  jle .end
+
+.end:
+  ret
+```
+
+```c
+
+#include <stdio.h>
+
+int assembly(void);
+
+int main(void)
+{
+  printf("Resultado: %d\n", assembly());
+  return 0;
+}
+```
+
+Na linha 10 temos um Jump if Less or Equal para o rótulo local `.end`, e logo na linha anterior uma comparação entre RBX e RCX. Se o valor de RBX for menor ou igual a RCX, então o salto será tomado e a instrução na linha 12 não será executada. Desta forma temos algo muito parecido com o `if` no pseudocódigo abaixo:
+
+```c
+eax = 0;
+    rbx = 7;
+    rcx = 5;
+    if(rbx > rcx){
+      eax = 1;
+    }
+    return;
+```
+Repare que a condição para o código ser executado é exatamente o oposto da condição para o salto ser tomado. Afinal de contas a lógica é que caso o salto seja tomado o código não será executado.
+
+    Experimente modificar os valores de RBX e RCX, e também teste usando outros Jcc.
+
+    
