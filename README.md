@@ -16,6 +16,7 @@
   <a href="#Saltos">Saltos</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; 
  <a href="#Procedimentos">Procedimentos</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; 
  <a href="#Seções e símbolos">Seções e símbolos</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; 
+ <a href="#Instruções assembly x86">Instruções assembly x86</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; 
 </p>
 
 <a id="Introdução"></a>
@@ -1006,3 +1007,120 @@ Se usarmos essa ferramenta nos nossos arquivos objetos podemos ver que, dentre v
 Depois do linker fazer o trabalho dele, ele gera o arquivo final que nós normalmente chamamos de executável. O executável de um sistema operacional nada mais é que um arquivo objeto que pode ser executado.
 
 A diferença desse arquivo objeto final para o arquivo objeto anterior, é que esse está organizado de acordo com as "exigências" do sistema operacional e pronto para ser rodado. Enquanto o outro só tem informação referente àquele arquivo fonte, sem dar as informações necessárias para o sistema operacional poder rodá-lo como código. Até porque esse código ainda não está pronto para ser executado, ainda há símbolos e outras dependências para serem resolvidas pelo linker.
+
+<a id="Instruções assembly x86"></a>
+
+# Instruções assembly x86 🤖
+
+Entendendo algumas instruções do Assembly x86
+
+Até agora já foram explicados alguns dos conceitos principais da linguagem Assembly da arquitetura x86, agora que já entendemos como a base funciona precisamos nos munir de algumas instruções para poder fazer códigos mais complexos. Pensando nisso vou listar aqui algumas instruções e uma explicação bem básica de como utilizá-las.
+
+## Formato da instrução
+
+Já expliquei a sintaxe de uma instrução no NASM mas não expliquei o formato em si da instrução no código de máquina. Para simplificar uma instrução pode ter os seguintes operandos:
+
+ - Um operando registrador
+ - Um operando registrador OU operando na memória
+ - Um operando imediato, que é um valor numérico que faz parte da instrução.
+
+ Basicamente são três tipos de operandos: Um registrador, valor na memória e um valor imediato. Um exemplo de cada um para ilustrar sendo mostrado como o segundo operando de MOV:
+
+ ```asm
+mov eax, ebx      ; EBX   = Registrador
+mov eax, [ebx]    ; [EBX] = Memória
+mov eax, 65       ; 65    = Valor imediato
+mov eax, "A"      ; "A"   = Valor imediato, mesmo que 65 
+ ```
+
+    Como demonstrado na linha 4 strings podem ser passadas como um operando imediato. O assembler irá converter a string em sua respectiva representação em bytes, só que é necessário ter atenção em relação ao tamanho da string que não pode ser maior do que o operando destino.
+
+São três operandos diferentes e cada um deles é opcional, isto é, pode ou não ser utilizado pela instrução (opcional para a instrução e não para nós).
+
+Repare que somente um dos operandos pode ser um valor na memória ou registrador, enquanto o outro é especificamente um registrador. É devido a isso que há a limitação de haver apenas um operando na memória, enquanto que o uso de dois operandos registradores é permitido.
+
+
+## Notação
+
+    Irei utilizar uma explicação simplificada aqui que irá deixar muita informação importante de fora.
+
+As seguintes nomenclaturas serão utilizadas:
+
+<p align="center">
+  <img src="./.github/notação.jpeg">
+</p>
+
+  Em alguns casos eu posso colocar um número junto a essa nomenclatura para especificar o tamanho do operando em bits. Por exemplo ``r/m16`` indica um operando registrador/memória de 16 bits.
+
+Em cada instrução irei apresentar a notação demonstrando cada combinação diferente de operandos que é possível utilizar. Lembrando que o ``operando destino`` é o mais à esquerda, enquanto que o ``operando fonte`` é o operando mais à direita.
+
+Cada nome de instrução em Assembly é um mnemônico, que é basicamente uma abreviatura feita para fácil memorização. Pensando nisso leia cada instrução com seu nome extenso equivalente para lembrar o que ela faz. No título de cada instrução irei deixar após um "|" o nome extenso da instrução para facilitar nessa tarefa.
+
+## MOV | Move
+
+```asm
+mov reg, r/m
+mov reg, imm
+mov r/m, reg
+mov r/m, imm
+```
+
+Copia o valor do operando fonte para o operando destino.
+
+```c
+ int destiny = source;
+```
+
+## ADD
+
+```asm
+add reg, r/m
+add reg, imm
+add r/m, reg
+add r/m, imm
+```
+Soma o valor do operando destino com o valor do operando fonte, armazenando o resultado no próprio operando destino.
+
+```c
+int destiny = destiny + source;
+```
+
+## SUB | Subtract
+
+```asm 
+sub reg, r/m
+sub reg, imm
+sub r/m, reg
+sub r/m, imm
+```
+
+Subtrai o valor do operando destino com o valor do operando fonte.
+
+```c
+int destiny = destiny - source;
+```
+
+## INC | Increment
+
+```asm
+inc r/m
+```
+
+Incrementa o valor do operando destino em 1.
+
+```c
+destiny++;
+```
+
+## DEC | Decrement
+
+```asm
+dec r/m
+```
+
+Decrementa o valor do operando destino em 1.
+
+```c
+destiny--;
+```
+
