@@ -928,13 +928,11 @@ Por enquanto não vamos ver a convenção de chamada que a linguagem C usa, só 
 
     Em um código em C não tente adivinhar o tamanho em bytes de um tipo. Para cada arquitetura diferente que você compilar o código, o tipo pode ter um tamanho diferente. Sempre que precisar do tamanho de um tipo use o operador sizeof.
 
-
 <a id="Seções e símbolos"></a>
 
 # Seções e símbolos 🤖
 
-A esta altura você já deve ter reparado que nossa função ``assembly`` está em um arquivo separado da função ``main``, mas de alguma maneira mágica a função pode ser executada e seu retorno capturado. Isso acontece graças a uma ferramenta chamada linker que junta vários arquivos objetos em um arquivo executável de saída.
-
+A esta altura você já deve ter reparado que nossa função `assembly` está em um arquivo separado da função `main`, mas de alguma maneira mágica a função pode ser executada e seu retorno capturado. Isso acontece graças a uma ferramenta chamada linker que junta vários arquivos objetos em um arquivo executável de saída.
 
 ## Arquivo objeto
 
@@ -952,19 +950,18 @@ Na prática se pode definir quantas seções quiser (dentro do limite suportado 
 
 Existem quatro seções principais que podemos usar no nosso código e o linker irá resolvê-las corretamente sem que nós precisamos dizer a ele como fazer seu trabalho. O NASM também reconhece essas seções como "padrão" e já configura os atributos delas corretamente.
 
-
-- ``.text`` -- Usada para armazenar o código executável do nosso programa.
-- ``.data`` -- Usada para armazenar dados inicializados do programa, por exemplo uma variável global.
-- ``.bss`` -- Usada para reservar espaço para dados não-inicializados, por exemplo uma variável global que foi declarada mas não teve um valor inicial definido.
-- ``.rodata`` ou ``.rdata`` -- Usada para armazenar dados que sejam somente leitura (readonly), por exemplo uma constante que não deve ter seu valor alterado em tempo de execução.
+- `.text` -- Usada para armazenar o código executável do nosso programa.
+- `.data` -- Usada para armazenar dados inicializados do programa, por exemplo uma variável global.
+- `.bss` -- Usada para reservar espaço para dados não-inicializados, por exemplo uma variável global que foi declarada mas não teve um valor inicial definido.
+- `.rodata` ou `.rdata` -- Usada para armazenar dados que sejam somente leitura (readonly), por exemplo uma constante que não deve ter seu valor alterado em tempo de execução.
 
       Esses nomes de seções são padronizados e códigos em C geralmente usam essas seções com esses mesmos nomes.
 
 Seções tem flags que definem atributos para a seção, as três flags principais e que nos importa saber é:
 
-- ``read`` -- Dá permissão de leitura para a seção.
-- ``write`` -- Dá permissão de escrita para a seção, assim o código executado pode escrever dados nela.
-- ``exec`` -- Dá permissão de executar os dados contidos na seção como código.
+- `read` -- Dá permissão de leitura para a seção.
+- `write` -- Dá permissão de escrita para a seção, assim o código executado pode escrever dados nela.
+- `exec` -- Dá permissão de executar os dados contidos na seção como código.
 
 Na sintaxe do NASM é possível definir essas flags manualmente em uma seção modificando seus atributos. Veja o exemplo abaixo:
 
@@ -982,7 +979,7 @@ Nos dois primeiros exemplos nada de fato foi alterado nas seções porque esses 
 
 Uma das informações salvas no arquivo objeto é a tabela de símbolos que é, como o nome sugere, uma tabela que define nomes e endereços para determinados símbolos usados no arquivo objeto. Um símbolo nada mais é que um nome para se referir a determinado endereço.
 Parece familiar? Pois é, símbolos e rótulos são essencialmente a mesma coisa. A única diferença prática é que o rótulo apenas existe como conceito no arquivo fonte e o símbolo existe como um valor no arquivo objeto.
-Quando definimos um rótulo em Assembly podemos "exportá-lo" como um símbolo para que outros arquivos objetos possam acessar aquele determinado endereço. Já vimos isso ser feito na nossa PoC, a diretiva ``global`` do NASM serve justamente para definir que aquele rótulo é global... Ou seja, que deve ser possível acessá-lo a partir de outros arquivos objetos.
+Quando definimos um rótulo em Assembly podemos "exportá-lo" como um símbolo para que outros arquivos objetos possam acessar aquele determinado endereço. Já vimos isso ser feito na nossa PoC, a diretiva `global` do NASM serve justamente para definir que aquele rótulo é global... Ou seja, que deve ser possível acessá-lo a partir de outros arquivos objetos.
 
 ## Linker
 
@@ -1020,25 +1017,24 @@ Até agora já foram explicados alguns dos conceitos principais da linguagem Ass
 
 Já expliquei a sintaxe de uma instrução no NASM mas não expliquei o formato em si da instrução no código de máquina. Para simplificar uma instrução pode ter os seguintes operandos:
 
- - Um operando registrador
- - Um operando registrador OU operando na memória
- - Um operando imediato, que é um valor numérico que faz parte da instrução.
+- Um operando registrador
+- Um operando registrador OU operando na memória
+- Um operando imediato, que é um valor numérico que faz parte da instrução.
 
- Basicamente são três tipos de operandos: Um registrador, valor na memória e um valor imediato. Um exemplo de cada um para ilustrar sendo mostrado como o segundo operando de MOV:
+Basicamente são três tipos de operandos: Um registrador, valor na memória e um valor imediato. Um exemplo de cada um para ilustrar sendo mostrado como o segundo operando de MOV:
 
- ```asm
+```asm
 mov eax, ebx      ; EBX   = Registrador
 mov eax, [ebx]    ; [EBX] = Memória
 mov eax, 65       ; 65    = Valor imediato
-mov eax, "A"      ; "A"   = Valor imediato, mesmo que 65 
- ```
+mov eax, "A"      ; "A"   = Valor imediato, mesmo que 65
+```
 
     Como demonstrado na linha 4 strings podem ser passadas como um operando imediato. O assembler irá converter a string em sua respectiva representação em bytes, só que é necessário ter atenção em relação ao tamanho da string que não pode ser maior do que o operando destino.
 
 São três operandos diferentes e cada um deles é opcional, isto é, pode ou não ser utilizado pela instrução (opcional para a instrução e não para nós).
 
 Repare que somente um dos operandos pode ser um valor na memória ou registrador, enquanto o outro é especificamente um registrador. É devido a isso que há a limitação de haver apenas um operando na memória, enquanto que o uso de dois operandos registradores é permitido.
-
 
 ## Notação
 
@@ -1050,9 +1046,9 @@ As seguintes nomenclaturas serão utilizadas:
   <img src="./.github/notação.jpeg">
 </p>
 
-  Em alguns casos eu posso colocar um número junto a essa nomenclatura para especificar o tamanho do operando em bits. Por exemplo ``r/m16`` indica um operando registrador/memória de 16 bits.
+Em alguns casos eu posso colocar um número junto a essa nomenclatura para especificar o tamanho do operando em bits. Por exemplo `r/m16` indica um operando registrador/memória de 16 bits.
 
-Em cada instrução irei apresentar a notação demonstrando cada combinação diferente de operandos que é possível utilizar. Lembrando que o ``operando destino`` é o mais à esquerda, enquanto que o ``operando fonte`` é o operando mais à direita.
+Em cada instrução irei apresentar a notação demonstrando cada combinação diferente de operandos que é possível utilizar. Lembrando que o `operando destino` é o mais à esquerda, enquanto que o `operando fonte` é o operando mais à direita.
 
 Cada nome de instrução em Assembly é um mnemônico, que é basicamente uma abreviatura feita para fácil memorização. Pensando nisso leia cada instrução com seu nome extenso equivalente para lembrar o que ela faz. No título de cada instrução irei deixar após um "|" o nome extenso da instrução para facilitar nessa tarefa.
 
@@ -1079,6 +1075,7 @@ add reg, imm
 add r/m, reg
 add r/m, imm
 ```
+
 Soma o valor do operando destino com o valor do operando fonte, armazenando o resultado no próprio operando destino.
 
 ```c
@@ -1087,7 +1084,7 @@ int destiny = destiny + source;
 
 ## SUB | Subtract
 
-```asm 
+```asm
 sub reg, r/m
 sub reg, imm
 sub r/m, reg
@@ -1122,5 +1119,78 @@ Decrementa o valor do operando destino em 1.
 
 ```c
 destiny--;
+```
+
+## MUL | Multiplicate
+
+```asm
+mul r/m,
+```
+
+Multiplica uma parte do mapeamento de RAX pelo operando fonte passado. Com base no tamanho do operando uma parte diferente de RAX será multiplicada e o resultado armazenado em um registrador diferente.
+
+<p align="center">
+  <img src="./.github/mul.jpeg">
+</p>
+
+No caso por exemplo de DX:AX, os registradores de 16 bits são usados em conjunto para representar um valor de 32 bits. Onde DX armazena os 2 bytes mais significativos do valor e AX os 2 bytes menos significativos.
+
+```c
+// Se operando de 8 bits
+AX = AL * operand;
+
+
+// Se operando de 16 bits
+aux = AX * operand;
+DX  = (aux & 0xffff0000) >> 16;
+AX  = aux & 0x0000ffff;
+```
+
+## DIV | Divide
+
+```asm
+div r/m
+```
+
+Seguindo uma premissa inversa de MUL, essa instrução faz a divisão de um valor pelo operando fonte passado e armazena o quociente e a sobra dessa divisão.
+
+<p align="center">
+  <img src="./.github/div.jpeg">
+</p>
+
+```c
+// Se operando de 8 bits
+AL = AX / operand;
+AH = AX % operand;
+```
+
+## LEA | Load Effective Address
+
+```asm
+lea reg, mem
+```
+
+Calcula o endereço efetivo do operando fonte e armazena o resultado do cálculo no registrador destino. Ou seja, ao invés de ler o valor no endereço do operando na memória o próprio endereço resultante do cálculo de endereço será armazenado no registrador. Exemplo:
+
+```asm
+mov rbx, 5
+lea rax, [rbx + 7]
+
+; Aqui RAX teria o valor 12
+```
+
+## AND
+
+```asm
+and reg, r/m
+and reg, imm
+and r/m, reg
+and r/m, imm
+```
+
+Faz uma operação E bit a bit nos operandos e armazena o resultado no operando destino.
+
+```c
+destiny = destiny & source;
 ```
 
