@@ -1194,3 +1194,69 @@ Faz uma operação E bit a bit nos operandos e armazena o resultado no operando 
 destiny = destiny & source;
 ```
 
+## OR
+
+```asm
+or reg, r/m
+or reg, imm
+or r/m, reg
+or r/m, imm
+```
+
+Faz uma operação OU bit a bit nos operandos e armazena o resultado no operando destino.
+
+```c
+destiny = destiny | source;
+```
+
+## XOR | Exclusive OR
+
+```asm
+xor reg, r/m
+xor reg, imm
+xor r/m, reg
+xor r/m, imm
+```
+
+Faz uma operação OU Exclusivo bit a bit nos operandos e armazena o resultado no operando destino.
+
+```c
+destiny = destiny ^ source;
+```
+
+## XCHG | Exchange
+
+```asm
+xchg reg, r/m
+xchg r/m, reg
+```
+
+O operando 2 recebe o valor do operando 1 e o operando 1 recebe o valor anterior do operando 2. Fazendo assim uma troca nos valores dos dois operandos. Repare que diferente das instruções anteriores essa modifica também o valor do segundo operando.
+
+```c
+auxiliary = destiny;
+destiny   = source;
+source    = auxiliary;
+```
+
+## XADD | Exchange and Add
+
+```asm
+xadd r/m, reg
+```
+
+O operando 2 recebe o valor do operando 1 e, em seguida, o operando 1 é somado com o valor anterior do operando 2. Basicamente preserva o valor anterior do operando 1 no operando 2 ao mesmo tempo que faz um ADD nele.
+
+
+```c
+auxiliary = source;
+source    = destiny;
+destiny   = destiny + auxiliary;
+```
+
+Essa instrução é equivalente a seguinte sequência de instruções:
+
+```asm
+xchg rax, rbx
+add rax, rbx
+```
