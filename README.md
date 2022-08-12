@@ -1260,3 +1260,136 @@ Essa instrução é equivalente a seguinte sequência de instruções:
 xchg rax, rbx
 add rax, rbx
 ```
+
+## SHL | Shift Left
+
+```asm
+shl r/m
+shl r/m, imm
+shl r/m, CL
+```
+
+Desloca os bits do operando destino para o operando da esquerda com base no número especificado. Se não for especificado um número sera usado o numero ``1``.
+
+```c
+destiny = destiny << 1;       // Se: shl r/m
+destiny = destiny << source; //  Nos outros casos
+```
+
+## SHR | Shift Right
+
+```asm
+shr r/m
+shr r/m, imm
+shr r/m, CL
+```
+
+Faz a mesma coisa do SHL so que para direita
+
+```c
+destiny = destiny >> 1;       // Se: shr r/m
+destiny = destiny >> source; //  Nos outros casos
+```
+
+## CMP | Compare
+    Veja esse comando como um if de outras linguagem alto nivel.
+
+```asm
+cmp r/m, imm
+cmp r/m, reg
+cmp reg, r/m
+```
+
+Ele compara dois valores e define isso no registrador RFRAGS.
+
+```c
+RFLAGS = compare(operand1, operand2);
+```
+
+## SETcc | Set byte if condition
+
+```asm
+SETcc r/m8
+```
+
+Difine um registrador de 8 bits para ou 1 ou 0 de acordo com a condição atendida, Igual no Jump.
+O 'cc' é uma sigla para se referir a uma condição assim como nos jumps
+
+```asm
+sete al
+; Se RFLAGS indica um valor igual: AL = 1. Se não: AL = 0
+```
+
+```c
+if (verify_rflags(condition) == true)
+{
+  destiny = 1;
+}
+else
+{
+  destiny = 0;
+}
+```
+
+Explicando melhor ele verifica se o valor de RFLAGS é verdadeiro e assim define isso no registrador de 8 bits especificado no paramentro da instrução.
+
+
+## CMOVcc | Condicional Move
+
+```asm
+CMOVcc reg, r/m
+```
+
+Essa instrução verificar se o valor de RFLAGS é verdadeiro e se for ele execulta o ``` mov reg, r/m ```
+
+```c
+if (verify_rflags(condition) == true)
+{
+  destiny = source;
+}
+```
+
+## NEG | Negate
+
+```asm
+neg r/m
+```
+
+Inverte o sinal do valor numérico indicado
+
+Se for 23 vira -23
+
+```c
+destiny = -destiny;
+```
+
+## NOT 
+
+```asm
+not r/m
+```
+
+faz um operação não bit a bit no operando.
+
+```c
+destiny = ~destiny;
+```
+
+## MOVSB/MOVSW/MOVSD/MOVSQ | Move String
+
+| REG        |      Byte      | NBytes  |
+| ------------- |:-------------:| -----:|
+| movsb         | byte          |1 byte |
+| movsw         | word          |2 bytes|
+| movsd         | double word   |4 bytes|
+| movsq         | quad word     |8 bytes|
+
+Copia um valor do tamanho de um byte, word, double word ou quad word a partir do endereço apontado por RSI (Source Index) para o endereço apontado por RDI (Destiny Index). Depois disso incrementa o valor dos dois registradores com o tamanho em bytes do dado que foi movido.
+
+```asm
+// Se MOVSW
+word [RDI] = word [RSI];
+RDI        = RDI + 2;
+RSI        = RSI + 2;
+```
+
